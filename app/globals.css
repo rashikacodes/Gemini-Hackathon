@@ -29,6 +29,11 @@
   --chart-4: oklch(0.6 0.1 165);
   --chart-5: oklch(0.38 0.08 150);
   --radius: 0.75rem;
+  --orange-main: #ff7a18;
+  --orange-soft: #ffb347;
+  --white-bg: #ffffff;
+  --card-bg: rgba(255, 255, 255, 0.85);
+
 }
 
 .dark {
@@ -96,6 +101,25 @@
   --color-sidebar-accent-foreground: var(--accent-foreground);
   --color-sidebar-border: var(--border);
   --color-sidebar-ring: var(--ring);
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(
+    135deg,
+    #ffffff,
+    #fff3e6,
+    #ffe0c2
+  );
+  background-size: 200% 200%;
+  animation: bgSlow 25s ease infinite;
+  font-family: "Inter", system-ui, sans-serif;
+  color: #222;
+}
+@keyframes bgSlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 @layer base {
@@ -218,8 +242,38 @@
   text-decoration: underline;
 }
 .card {
-  background: #ffffff;
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
   border-radius: 18px;
-  border: 1px solid #f1f1f1;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0,0,0,0.05);
+  box-shadow:
+    0 10px 25px rgba(0,0,0,0.08);
+}
+.orange-title {
+  color: var(--orange-main);
+}
+
+/* ========= BUTTON ========= */
+.orange-btn {
+  background: linear-gradient(
+    90deg,
+    var(--orange-main),
+    var(--orange-soft)
+  );
+  background-size: 200% 200%;
+  animation: btnSlow 6s ease infinite;
+  color: white;
+  font-weight: 600;
+  border-radius: 12px;
+  padding: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+@keyframes btnSlow {
+  0% { background-position: 0%; }
+  100% { background-position: 200%; }
+}
+.orange-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 122, 24, 0.35);
 }
