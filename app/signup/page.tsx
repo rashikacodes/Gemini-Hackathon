@@ -36,7 +36,7 @@ const SignupPage = () => {
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="card w-full max-w-md p-8">
 
-        {/* Heading */}
+    
         <h1 className="text-3xl font-bold text-orange-600 text-center">
           Create Account
         </h1>
@@ -44,7 +44,7 @@ const SignupPage = () => {
           Join the future
         </p>
 
-        {/* Form */}
+       
         <form onSubmit={handleSubmit} className="space-y-5 mt-6">
           <Input label="Username" name="username" onChange={handleChange} />
           <Input label="Email" name="email" onChange={handleChange} />
@@ -53,7 +53,6 @@ const SignupPage = () => {
           <Button type="submit">Create Account</Button>
         </form>
 
-        {/* Switch */}
         <p className="text-center mt-6 text-sm text-gray-600">
           Already have an account?{" "}
           <Link href="/login" className="text-orange-600 font-medium">
