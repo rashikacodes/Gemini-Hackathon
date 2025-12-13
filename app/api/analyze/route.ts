@@ -2,30 +2,80 @@ import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export async function POST(req: NextRequest) {
-  const formData = await req.formData();
-  const file: File | null = formData.get("image") as unknown as File;
+  try {
+    const formData = await req.formData();
+    const file = formData.get("image");
 
-  if (!file) {
-    return NextResponse.json({ error: "No image provided" }, { status: 400 });
-  }
+    if (!file || !(file instanceof File)) {
+      return NextResponse.json(
+        { error: "Image file is required" },
+        { status: 400 }
+      );
+    }
 
-  const arrayBuffer = await file.arrayBuffer();
-  const bytes = new Uint8Array(arrayBuffer);
+    if (!file.type.startsWith("image/")) {
+      return NextResponse.json(
+        { error: "Only image files are allowed" },
+        { status: 400 }
+      );
+    }
 
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    if (file.size > 5 * 1024 * 1024) {
+      return NextResponse.json(
+        { error: "Image size exceeds 5MB limit" },
+        { status: 400 }
+      );
+    }
 
-  const result = await model.generateContent([
-    {
-      inlineData: {
-        data: Buffer.from(bytes).toString("base64"),
-        mimeType: file.type,
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const base64Image = buffer.toString("base64");
+
+    console.log(base64Image);
+    const apiKey = process.env.GEMINI_API_KEY;
+
+    if (!apiKey) {
+      console.error("GEMINI_API_KEY is not set in environment variables");
+      return NextResponse.json(
+        { error: "API key not configured" },
+        { status: 500 }
+      );
+    }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+
+    // Use gemini-2.5-flash (available and latest fast model)
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash",
+    });
+
+    const prompt = `Analyze this garbage bin image and classify the fill level as one of these: LOW, MEDIUM, HIGH, CRITICAL. 
+
+Rules:
+- Output exactly ONE word only
+- Choose from: LOW, MEDIUM, HIGH, CRITICAL
+- No explanation, no emojis, no punctuation`;
+
+    const result = await model.generateContent([
+      prompt,
+      {
+        inlineData: {
+          data: base64Image,
+          mimeType: file.type,
+        },
       },
-    },
-    "Classify garbage bin fill level as: LOW, MEDIUM, HIGH, CRITICAL",
-  ]);
+    ]);
 
-  const text = result.response.text();
+    let text = result.response.text().toUpperCase().trim();
 
-  return NextResponse.json({ analysis: text });
+    const levels = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
+    const trashLevel = levels.find((lvl) => text.includes(lvl)) ?? "UNKNOWN";
+
+    return NextResponse.json({ trashLevel });
+  } catch (error) {
+    console.error("Gemini analysis error:", error);
+    return NextResponse.json(
+      { error: "Failed to analyze image" },
+      { status: 500 }
+    );
+  }
 }
