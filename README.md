@@ -212,8 +212,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-For support, email support@wastex-ai.com or create an issue in the GitHub repository.
+For support, contact Team HackerEyesor create an issue in the GitHub repository.
 
 ---
 
-**Built with ❤️ for cleaner cities and smarter waste management**
+**Built with ❤️ by Team HackerEyes for cleaner cities and smarter waste management**
