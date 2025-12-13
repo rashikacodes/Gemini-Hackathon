@@ -4,7 +4,10 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {}
 
 const Button: React.FC<ButtonProps> = ({ children, ...props }) => {
   return (
-    <button {...props} className="orange-btn w-full">
+    <button
+      {...props}
+      className="orange-btn w-full"
+    >
       {children}
     </button>
   );

@@ -29,8 +29,8 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="card w-full max-w-md p-8">
+   <div className="auth-wrapper">
+  <div className="auth-card">
 
       
         <h1 className="text-3xl font-bold text-orange-600 text-center">
