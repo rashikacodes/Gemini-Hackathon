@@ -1,102 +1,225 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
+/* Greenery/eco-themed color palette with earth tones and fresh greens */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: oklch(0.99 0.005 142);
+  --foreground: oklch(0.22 0.015 155);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.22 0.015 155);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.22 0.015 155);
+  --primary: oklch(0.52 0.14 155);
+  --primary-foreground: oklch(0.99 0.005 142);
+  --secondary: oklch(0.45 0.12 142);
+  --secondary-foreground: oklch(0.99 0.005 142);
+  --muted: oklch(0.95 0.01 140);
+  --muted-foreground: oklch(0.5 0.02 155);
+  --accent: oklch(0.68 0.16 142);
+  --accent-foreground: oklch(0.99 0.005 142);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.99 0.005 142);
+  --border: oklch(0.91 0.01 145);
+  --input: oklch(0.91 0.01 145);
+  --ring: oklch(0.52 0.14 155);
+  --chart-1: oklch(0.52 0.14 155);
+  --chart-2: oklch(0.45 0.12 142);
+  --chart-3: oklch(0.68 0.16 142);
+  --chart-4: oklch(0.6 0.1 165);
+  --chart-5: oklch(0.38 0.08 150);
+  --radius: 0.75rem;
+}
+
+.dark {
+  --background: oklch(0.15 0.01 155);
+  --foreground: oklch(0.95 0.01 142);
+  --card: oklch(0.18 0.015 155);
+  --card-foreground: oklch(0.95 0.01 142);
+  --popover: oklch(0.18 0.015 155);
+  --popover-foreground: oklch(0.95 0.01 142);
+  --primary: oklch(0.62 0.16 145);
+  --primary-foreground: oklch(0.15 0.01 155);
+  --secondary: oklch(0.25 0.02 150);
+  --secondary-foreground: oklch(0.95 0.01 142);
+  --muted: oklch(0.25 0.02 150);
+  --muted-foreground: oklch(0.65 0.03 145);
+  --accent: oklch(0.68 0.16 142);
+  --accent-foreground: oklch(0.15 0.01 155);
+  --destructive: oklch(0.5 0.2 27);
+  --destructive-foreground: oklch(0.95 0.01 142);
+  --border: oklch(0.25 0.02 150);
+  --input: oklch(0.25 0.02 150);
+  --ring: oklch(0.62 0.16 145);
+  --chart-1: oklch(0.62 0.16 145);
+  --chart-2: oklch(0.55 0.14 138);
+  --chart-3: oklch(0.68 0.16 142);
+  --chart-4: oklch(0.6 0.1 165);
+  --chart-5: oklch(0.45 0.1 150);
 }
 
 @theme inline {
+  --font-sans: "Inter", "Inter Fallback", system-ui, -apple-system, sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--background);
+  --color-sidebar-foreground: var(--foreground);
+  --color-sidebar-primary: var(--primary);
+  --color-sidebar-primary-foreground: var(--primary-foreground);
+  --color-sidebar-accent: var(--accent);
+  --color-sidebar-accent-foreground: var(--accent-foreground);
+  --color-sidebar-border: var(--border);
+  --color-sidebar-ring: var(--ring);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
-/* ========= ROOT ========= */
-:root {
-  --orange-main: #ff7a18;
-  --orange-soft: #ffb347;
-  --white-bg: #ffffff;
-  --card-bg: rgba(255, 255, 255, 0.85);
+/* Custom smooth animations for interactive elements */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* ========= BODY ========= */
-body {
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+/* ============================
+   AUTH UI (LOGIN / SIGNUP)
+   Added without touching theme
+   ============================ */
+
+/* Auth page background wrapper */
+.auth-wrapper {
   min-height: 100vh;
-  background: linear-gradient(
-    135deg,
-    #ffffff,
-    #fff3e6,
-    #ffe0c2
-  );
-  background-size: 200% 200%;
-  animation: bgSlow 25s ease infinite;
-  font-family: "Inter", system-ui, sans-serif;
-  color: #222;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+/* Auth card */
+.auth-card {
+  background: var(--card);
+  color: var(--card-foreground);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  width: 100%;
+  max-width: 420px;
+  border: 1px solid var(--border);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  animation: fade-in-up 0.6s ease-out;
+}
+
+/* Auth heading */
+.auth-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--primary);
+  margin-bottom: 0.25rem;
+}
+
+.auth-subtitle {
+  text-align: center;
+  font-size: 0.95rem;
+  color: var(--muted-foreground);
+  margin-bottom: 1.5rem;
+}
+
+/* Auth form spacing */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+/* Auth button */
+.auth-btn {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  transition: all 0.25s ease;
+}
+
+.auth-btn:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
+/* Bottom switch text */
+.auth-footer {
+  text-align: center;
+  font-size: 0.9rem;
+  margin-top: 1.5rem;
+  color: var(--muted-foreground);
+}
+
+.auth-footer a {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
 }
 .card {
   background: #ffffff;
   border-radius: 18px;
   border: 1px solid #f1f1f1;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
-}
-
-/* SLOW GRADIENT */
-@keyframes bgSlow {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* ========= CARD ========= */
-.card {
-  background: var(--card-bg);
-  backdrop-filter: blur(10px);
-  border-radius: 18px;
-  border: 1px solid rgba(0,0,0,0.05);
-  box-shadow:
-    0 10px 25px rgba(0,0,0,0.08);
-}
-
-/* ========= TITLE ========= */
-.orange-title {
-  color: var(--orange-main);
-}
-
-/* ========= BUTTON ========= */
-.orange-btn {
-  background: linear-gradient(
-    90deg,
-    var(--orange-main),
-    var(--orange-soft)
-  );
-  background-size: 200% 200%;
-  animation: btnSlow 6s ease infinite;
-  color: white;
-  font-weight: 600;
-  border-radius: 12px;
-  padding: 12px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-@keyframes btnSlow {
-  0% { background-position: 0%; }
-  100% { background-position: 200%; }
-}
-
-.orange-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(255, 122, 24, 0.35);
 }
