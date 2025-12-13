@@ -5,8 +5,10 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Link from "next/link";
 import { useUser } from "@/contexts/userContext";
+import { useRouter } from "next/navigation";
 
 const LoginPage = () => {
+  const router = useRouter()
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -31,7 +33,7 @@ const LoginPage = () => {
         console.log("success")
         console.log(response.user)
         setUser(response.user);
-        window.location.href = "/";
+        router.push("/upload")
       } else {
         alert(response.message || "Login failed");
       }

@@ -2,7 +2,7 @@ import { User } from "@/models/user.models";
 import dbConnect from "@/utils/dbConnect";
 import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
-import jwt, { JwtPayload, SignOptions } from "jsonwebtoken";
+import jwt, { SignOptions } from "jsonwebtoken"
 
 export async function POST(req: NextRequest) {
 
@@ -31,7 +31,7 @@ try {
             _id: user._id,
             username: user.username,
             email: user.email
-        } as JwtPayload
+        }
 
         const key = process.env.JWT_SECRET_TOKEN as string;
 
@@ -40,7 +40,7 @@ try {
         }
         
         const expiresIn = {
-            expiresIn: '5d' as SignOptions["expiresIn"]
+            expiresIn: '5d' as SignOptions['expiresIn']
         } 
 
         const token = jwt.sign(payload, key, expiresIn)
@@ -60,6 +60,4 @@ try {
     console.error(error)
     return NextResponse.json({success: false, message: "Internal Server Error"}, {status: 500});
 }
-
-
 }

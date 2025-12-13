@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer());
     const base64Image = buffer.toString("base64");
 
-    console.log(base64Image);
+    // console.log(base64Image);
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
@@ -87,12 +87,13 @@ Rules:
         coordinates: [longitude, latitude],
       },
       trashLevel,
+      "image-url": formData.get("image-url") || "",
     };
 
     dbConnect();
     const report = await Report.create(reportData)
 
-    return NextResponse.json({report}, { status: 200 });
+    return NextResponse.json({ report }, { status: 200 });
   } catch (error) {
     console.error("Gemini analysis error:", error);
     return NextResponse.json(

@@ -8,7 +8,7 @@ const ReportSchema = new mongoose.Schema({
       required: true,
     },
     coordinates: {
-      type: [Number], 
+      type: [Number],
       required: true,
     },
   },
@@ -25,6 +25,14 @@ const ReportSchema = new mongoose.Schema({
     default: "REPORTED",
   },
 
+  "image-url": {
+    type: String,
+  },
+
+  message: {
+    type: String,
+  },
+
   createdAt: {
     type: Date,
     default: Date.now,
@@ -33,4 +41,5 @@ const ReportSchema = new mongoose.Schema({
 
 ReportSchema.index({ location: "2dsphere" });
 
-export const Report =  mongoose.models.Report || mongoose.model("Report", ReportSchema);
+export const Report =
+  mongoose.models.Report || mongoose.model("Report", ReportSchema);

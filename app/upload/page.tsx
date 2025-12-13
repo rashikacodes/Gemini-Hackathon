@@ -5,6 +5,7 @@ import { useEffect, useState } from "react"
 import { Upload, MapPin, Loader2, CheckCircle2, AlertCircle, ImageIcon } from 'lucide-react'
 import { useRouter } from "next/navigation"
 import { useUser } from "@/contexts/userContext"
+import uploadOnCloudinary from "@/utils/uploadOnCloudinary"
 
 export default function UploadPage() {
   const [image, setImage] = useState<File | null>(null)
@@ -15,12 +16,12 @@ export default function UploadPage() {
   const [latLng, setLatLng] = useState<{ lat: number; lng: number } | null>(null)
   const [locationLoading, setLocationLoading] = useState(false)
 
-    const {user} = useUser()
+  const { user } = useUser()
   const router = useRouter();
 
   useEffect(() => {
     console.log(user)
-    if(!user){
+    if (!user) {
       router.push('/login');
     }
   }, [user])
@@ -90,8 +91,11 @@ export default function UploadPage() {
     formData.append("image", image)
     formData.append("latitude", latLng.lat.toString())
     formData.append("longitude", latLng.lng.toString())
-
+    
     try {
+      const url = await uploadOnCloudinary(image);
+      console.log(url)
+      formData.append("image-url", url)
       const res = await fetch("/api/analyze", {
         method: "POST",
         body: formData,
@@ -219,13 +223,12 @@ export default function UploadPage() {
           {/* Status Message */}
           {status && (
             <div
-              className={`flex items-start gap-3 p-4 rounded-lg ${
-                success
+              className={`flex items-start gap-3 p-4 rounded-lg ${success
                   ? "bg-primary/10 border border-primary/20"
                   : status.includes("⚠️") || status.includes("❌")
                     ? "bg-destructive/10 border border-destructive/20"
                     : "bg-accent/10 border border-accent/20"
-              }`}
+                }`}
             >
               {success ? (
                 <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />

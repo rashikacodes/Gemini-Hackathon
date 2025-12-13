@@ -44,11 +44,21 @@ const fetchLocation = () => {
 };
 
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Contact form submitted:", formData);
+
+    const res = await fetch("/api/contact", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ ...formData, location }),
+    }).then(res => res.json());
+    console.log(res)
     alert("Thank you for contacting us!");
     setFormData({ name: "", email: "", message: "" });
+    setLocation({ latitude: null, longitude: null });
   };
 
   return (

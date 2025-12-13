@@ -12,12 +12,12 @@ type Report = {
   latitude: number;
   longitude: number;
   timestamp: string;
+  imageUrl?: string;
 };
 
 export default function DashboardPage() {
   const [reports, setReports] = useState<Report[]>([]);
   const [filter, setFilter] = useState("All");
-  const [autoRefresh, setAutoRefresh] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [location, setLocation] = useState<{ lat: number; lon: number } | null>(
     null
@@ -62,7 +62,7 @@ export default function DashboardPage() {
       }
 
       console.log("Reports loaded:", data);
-      
+
       // Ensure we always have an array
       setReports(Array.isArray(data.reports) ? data.reports : []);
     } catch (error) {
@@ -76,12 +76,8 @@ export default function DashboardPage() {
   useEffect(() => {
     if (location) {
       loadReports();
-      if (autoRefresh) {
-        const interval = setInterval(loadReports, 5000);
-        return () => clearInterval(interval);
-      }
     }
-  }, [autoRefresh, location]);
+  }, [location]);
 
   // STATISTICS
   const stats = {
@@ -120,11 +116,10 @@ export default function DashboardPage() {
             {filterLevels.map((lvl) => (
               <button
                 key={lvl}
-                className={`w-full py-2.5 px-4 rounded-lg font-medium text-sm transition-all duration-300 ${
-                  filter === lvl
-                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
-                }`}
+                className={`w-full py-2.5 px-4 rounded-lg font-medium text-sm transition-all duration-300 ${filter === lvl
+                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                  }`}
                 onClick={() => setFilter(lvl)}
               >
                 {lvl}
@@ -183,30 +178,20 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Auto Refresh Toggle */}
-        {/* <div className="space-y-3 mt-auto">
-          <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
-            <RefreshCw
-              className={`w-4 h-4 text-secondary ${
-                autoRefresh ? "animate-spin" : ""
-              }`}
-            />
-            Auto Refresh
-          </h2>
-
+        {/* Refresh Button */}
+        <div className="space-y-3 mt-auto">
           <button
-            onClick={() => setAutoRefresh(!autoRefresh)}
-            className={`w-full py-2.5 px-4 rounded-lg font-medium text-sm transition-all duration-300 ${
-              autoRefresh
-                ? "bg-secondary text-secondary-foreground shadow-lg"
-                : "bg-muted text-muted-foreground hover:bg-muted/80"
-            }`}
+            onClick={loadReports}
+            disabled={isLoading || !location}
+            className="w-full py-3 px-4 rounded-xl font-medium text-sm transition-all duration-300 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 hover:border-primary/40 flex items-center justify-center gap-2 group"
           >
-            {autoRefresh ? "Stop Auto Refresh" : "Enable Auto Refresh"}
+            <RefreshCw
+              className={`w-4 h-4 transition-all duration-500 ${isLoading ? "animate-spin" : "group-hover:rotate-180"
+                }`}
+            />
+            {isLoading ? "Refreshing..." : "Refresh Reports"}
           </button>
-
-          {autoRefresh && <p className="text-xs text-muted-foreground text-center">Refreshing every 5 seconds</p>}
-        </div> */}
+        </div>
       </div>
 
       {/* MAP */}

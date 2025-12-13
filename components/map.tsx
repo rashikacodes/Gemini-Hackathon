@@ -8,6 +8,7 @@ type Report = {
   latitude: number;
   longitude: number;
   timestamp: string;
+  imageUrl?: string;
 };
 
 type MapProps = {
@@ -90,7 +91,7 @@ export default function Map({ reports, filter }: MapProps) {
       if (mapInstanceRef.current) {
         try {
           mapInstanceRef.current.remove();
-        } catch (_) {}
+        } catch (_) { }
         mapInstanceRef.current = null;
       }
     };
@@ -108,12 +109,12 @@ export default function Map({ reports, filter }: MapProps) {
     const markers: any[] = [];
     filteredReports.forEach((r) => {
       const color = getColor(r.trashLevel);
-      
+
       // Create marker with appropriate size based on trash level
-      const radius = r.trashLevel === "Critical" ? 12 : 
-                     r.trashLevel === "High" ? 10 : 
-                     r.trashLevel === "Medium" ? 8 : 6;
-      
+      const radius = r.trashLevel === "Critical" ? 12 :
+        r.trashLevel === "High" ? 10 :
+          r.trashLevel === "Medium" ? 8 : 6;
+
       const marker = L.circleMarker([r.latitude, r.longitude], {
         radius: radius,
         fillColor: color,
@@ -123,14 +124,33 @@ export default function Map({ reports, filter }: MapProps) {
       })
         .bindPopup(
           `
-          <div style="min-width: 150px;">
-            <strong style="color: ${color}; font-size: 14px;">${r.trashLevel} Level</strong><br/>
-            <small>📍 ${r.latitude.toFixed(4)}, ${r.longitude.toFixed(4)}</small><br/>
-            <small>🕒 ${new Date(r.timestamp).toLocaleString()}</small>
+          <div class="p-1 font-sans">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="w-2 h-2 rounded-full" style="background-color: ${color}"></span>
+              <strong style="color: ${color}; font-size: 14px; letter-spacing: 0.5px;">${r.trashLevel.toUpperCase()}</strong>
+            </div>
+            ${r.imageUrl ? `
+            <div class="mb-3 rounded-lg overflow-hidden border border-gray-100 bg-gray-50 aspect-video w-full relative">
+              <img src="${r.imageUrl}" alt="Report Image" class="w-full h-full object-cover" onerror="this.style.display='none'" />
+            </div>
+            ` : ''}
+            <div class="space-y-1.5 text-xs text-gray-600 dark:text-gray-300">
+              <div class="flex items-center gap-1.5">
+                <span>📍</span>
+                <span class="font-mono text-[10px]">${r.latitude.toFixed(4)}, ${r.longitude.toFixed(4)}</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span>🕒</span>
+                <span class="font-medium">${new Date(r.timestamp).toLocaleString()}</span>
+              </div>
+            </div>
           </div>
         `,
           {
-            className: "custom-popup",
+            className: "custom-popup-premium",
+            closeButton: false,
+            minWidth: 220,
+            maxWidth: 260
           }
         )
         .addTo(markerLayerRef.current);
@@ -146,7 +166,7 @@ export default function Map({ reports, filter }: MapProps) {
           maxZoom: 15,
         });
       }
-    } catch (_) {}
+    } catch (_) { }
   }, [filteredReports]);
 
   // Watch user geolocation and show live marker
@@ -189,10 +209,10 @@ export default function Map({ reports, filter }: MapProps) {
         if (!hasCenteredRef.current) {
           try {
             mapInstanceRef.current.setView([latitude, longitude], 15);
-          } catch (_) {}
+          } catch (_) { }
           hasCenteredRef.current = true;
         }
-      } catch (_) {}
+      } catch (_) { }
     };
 
     const error = (err: GeolocationPositionError) => {
@@ -211,7 +231,7 @@ export default function Map({ reports, filter }: MapProps) {
       if (geoWatchIdRef.current != null) {
         try {
           navigator.geolocation.clearWatch(geoWatchIdRef.current);
-        } catch (_) {}
+        } catch (_) { }
         geoWatchIdRef.current = null;
       }
 
@@ -224,7 +244,7 @@ export default function Map({ reports, filter }: MapProps) {
           accuracyCircleRef.current.remove();
           accuracyCircleRef.current = null;
         }
-      } catch (_) {}
+      } catch (_) { }
     };
   }, [mapInstanceRef.current]);
 
@@ -244,29 +264,35 @@ export default function Map({ reports, filter }: MapProps) {
   };
 
   return (
-    <div className="w-full h-full bg-muted/10 rounded-lg overflow-hidden relative">
+    <div className="w-full h-full bg-card/50 backdrop-blur-sm rounded-2xl overflow-hidden relative border border-border shadow-xl">
       <div
         ref={mapRef}
-        className="w-full h-[calc(100vh-5rem)]"
+        className="w-full h-[calc(100vh-5rem)] z-0"
         style={{ minHeight: 300 }}
       />
 
-      <div className="absolute top-4 right-4 bg-card/95 backdrop-blur-sm border border-border rounded-lg px-3 py-2 shadow-lg">
-        <div className="text-xs text-muted-foreground">
-          Reports: {filteredReports.length}
+      {/* Floating Stats Card */}
+      <div className="absolute top-4 right-4 z-[400]">
+        <div className="bg-background/80 backdrop-blur-md border border-border/50 rounded-xl px-4 py-3 shadow-lg flex items-center gap-3 transition-all hover:bg-background/90 hover:scale-105">
+          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+          <div className="flex flex-col">
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Live Reports</span>
+            <span className="text-lg font-bold text-foreground leading-none">{filteredReports.length}</span>
+          </div>
         </div>
       </div>
 
+      {/* Empty State Overlay */}
       {filteredReports.length === 0 && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="text-center space-y-2">
-            <div className="text-4xl">📍</div>
-            <p className="text-muted-foreground font-medium">
-              No reports found
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Try adjusting your filters
-            </p>
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[400] bg-background/5">
+          <div className="text-center space-y-4 p-8 bg-background/80 backdrop-blur-md rounded-2xl border border-border shadow-2xl animate-in fade-in zoom-in duration-300">
+            <div className="text-5xl mb-2">🗺️</div>
+            <div>
+              <h3 className="text-lg font-semibold text-foreground">No reports found</h3>
+              <p className="text-sm text-muted-foreground">
+                Try adjusting your filters or location
+              </p>
+            </div>
           </div>
         </div>
       )}

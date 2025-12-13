@@ -3,7 +3,7 @@
 //useContext to make context available
 //context provider to wrap around app
 
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
 export interface UserData {
     _id: string;
@@ -47,6 +47,10 @@ export const UserProvider = ({children} : {children: ReactNode}) => {
             setIsUserLoading(false);
         }   
     }
+
+    useEffect(() => {
+		refreshUser();
+	}, []);
     return (
         <UserContext.Provider value={{ user, setUser, refreshUser, isUserLoading }}>
             {children}

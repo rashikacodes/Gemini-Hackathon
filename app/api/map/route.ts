@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     const transformedReports = reports.map((report: any) => {
       // MongoDB stores coordinates as [longitude, latitude]
       const [longitude, latitude] = report.location.coordinates;
-      
+
       // Convert trashLevel from "LOW" to "Low" (Title Case)
       const trashLevelMap: Record<string, string> = {
         LOW: "Low",
@@ -46,6 +46,7 @@ export async function POST(req: NextRequest) {
         longitude,
         trashLevel,
         timestamp: report.createdAt || new Date().toISOString(),
+        imageUrl: report["image-url"],
       };
     });
 
