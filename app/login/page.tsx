@@ -15,15 +15,24 @@ const LoginPage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const res = await fetch("/api/login",{
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    }).then(res => res.json());
+    console.log(res);
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="card w-full max-w-md p-8">
 
-        {/* Heading */}
+      
         <h1 className="text-3xl font-bold text-orange-600 text-center">
           Welcome Back
         </h1>
@@ -31,7 +40,7 @@ const LoginPage = () => {
           Login to continue
         </p>
 
-        {/* Form */}
+      
         <form onSubmit={handleSubmit} className="space-y-5 mt-6">
           <Input
             label="Username"
@@ -49,7 +58,6 @@ const LoginPage = () => {
           <Button type="submit">Login</Button>
         </form>
 
-        {/* Switch */}
         <p className="text-center mt-6 text-sm text-gray-600">
           New here?{" "}
           <Link href="/signup" className="text-orange-600 font-medium">
