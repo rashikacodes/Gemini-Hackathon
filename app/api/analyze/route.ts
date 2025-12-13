@@ -1,10 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import dbConnect from "@/utils/dbConnect";
+import { Report } from "@/models/report.model";
 
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     const file = formData.get("image");
+
+    const latitude = Number(formData.get("latitude"));
+    const longitude = Number(formData.get("longitude"));
+
+    if (isNaN(latitude) || isNaN(longitude)) {
+      return NextResponse.json(
+        { error: "Invalid location data" },
+        { status: 400 }
+      );
+    }
 
     if (!file || !(file instanceof File)) {
       return NextResponse.json(
@@ -43,7 +55,6 @@ export async function POST(req: NextRequest) {
 
     const genAI = new GoogleGenerativeAI(apiKey);
 
-    // Use gemini-2.5-flash (available and latest fast model)
     const model = genAI.getGenerativeModel({
       model: "gemini-2.5-flash",
     });
@@ -70,7 +81,18 @@ Rules:
     const levels = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
     const trashLevel = levels.find((lvl) => text.includes(lvl)) ?? "UNKNOWN";
 
-    return NextResponse.json({ trashLevel });
+    const reportData = {
+      location: {
+        type: "Point",
+        coordinates: [longitude, latitude],
+      },
+      trashLevel,
+    };
+
+    dbConnect();
+    const report = await Report.create(reportData)
+
+    return NextResponse.json({report}, { status: 200 });
   } catch (error) {
     console.error("Gemini analysis error:", error);
     return NextResponse.json(

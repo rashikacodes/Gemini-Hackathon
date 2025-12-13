@@ -89,7 +89,7 @@ export default function UploadPage() {
       const data = await res.json()
 
       if (res.ok) {
-        setStatus(`✨ AI Analysis Complete: ${data.trashLevel} level detected`)
+        setStatus(`✨ AI Analysis Complete: ${data.report.trashLevel} level detected`)
         setSuccess(true)
       } else {
         setStatus(`❌ ${data.error || "Something went wrong"}`)

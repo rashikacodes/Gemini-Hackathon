@@ -33,5 +33,4 @@ const ReportSchema = new mongoose.Schema({
 
 ReportSchema.index({ location: "2dsphere" });
 
-export default mongoose.models.Report ||
-  mongoose.model("Report", ReportSchema);
+export const Report =  mongoose.models.Report || mongoose.model("Report", ReportSchema);
