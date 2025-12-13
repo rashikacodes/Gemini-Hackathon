@@ -176,10 +176,7 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Refresh Button */}
-        <div className="space-y-3 mt-auto">
+          <div className=" mt-auto">
           <button
             onClick={loadReports}
             disabled={isLoading || !location}
@@ -192,6 +189,8 @@ export default function DashboardPage() {
             {isLoading ? "Refreshing..." : "Refresh Reports"}
           </button>
         </div>
+        </div>
+        
       </div>
 
       {/* MAP */}

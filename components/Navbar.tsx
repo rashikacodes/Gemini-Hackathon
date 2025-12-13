@@ -15,7 +15,7 @@ export default function Navbar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto pl-6">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
@@ -51,6 +51,13 @@ export default function Navbar() {
                 className="px-6 py-2.5 rounded-lg bg-primary text-primary-foreground hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 font-semibold"
               >
                 Report Waste
+              </Link>
+
+              <Link
+                href="/contact"
+                className="px-6 py-2.5 rounded-lg bg-orange-400 text-primary-foreground hover:shadow-lg hover:shadow-accent/20 transition-all duration-300 font-semibold"
+              >
+                Contact
               </Link>
             </div>
           )}
@@ -105,7 +112,7 @@ export default function Navbar() {
             </Link>
             <Link
               href="/upload"
-              className="block w-full text-center py-2.5 rounded-lg bg-primary text-primary-foreground hover:shadow-lg transition-all duration-300 font-semibold"
+              className="block w-full text-center py-2.5 rounded-lg bg-orange-400 text-primary-foreground hover:shadow-lg transition-all duration-300 font-semibold"
               onClick={() => setIsOpen(false)}
             >
               Report Waste
