@@ -9,10 +9,10 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center space-y-8 animate-fade-in-up">
             {/* Subtitle Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium">
+            {/* <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium">
               <Leaf className="w-4 h-4" />
               <span>AI‑powered waste monitoring</span>
-            </div>
+            </div> */}
 
             {/* Main Title */}
             <h1 className="text-5xl md:text-7xl font-bold text-balance leading-tight">

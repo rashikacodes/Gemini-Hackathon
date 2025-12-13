@@ -1,6 +1,9 @@
+"use client"
+import { useUser } from "@/contexts/userContext"
 import Link from "next/link"
 
 export default function Navbar() {
+    const {user} = useUser();
   return (
     <nav className="w-full fixed top-0 left-0 bg-background/80 backdrop-blur-md border-b border-border z-50 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
@@ -8,9 +11,9 @@ export default function Navbar() {
         <Link href="/" className="text-xl font-bold text-primary hover:text-accent transition-colors duration-300">
           🌿 SmartWaste AI
         </Link>
-
-        {/* Right Buttons */}
-        <div className="flex gap-4">
+{
+    user && (
+   <div className="flex gap-8 items-center">
           <Link
             href="/login"
             className="text-sm font-medium text-foreground hover:text-primary transition-colors duration-300"
@@ -25,6 +28,10 @@ export default function Navbar() {
             Sign Up
           </Link>
         </div>
+    ) 
+}
+        {/* Right Buttons */}
+        
       </div>
     </nav>
   )
