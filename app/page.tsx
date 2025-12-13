@@ -138,7 +138,7 @@ export default function HomePage() {
               How <span className="text-primary">SmartWaste AI</span> Works
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Four simple steps to revolutionize your city's waste management
+              Four simple steps to revolutionize your city&apos;s waste management
             </p>
           </div>
 
