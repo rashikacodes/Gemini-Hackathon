@@ -1,7 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
-
+import React, { useEffect, useMemo, useRef } from "react"
 
 type Report = {
   _id: string
@@ -17,177 +16,215 @@ type MapProps = {
 }
 
 export default function Map({ reports, filter }: MapProps) {
-  // Filter reports based on selected filter
+  const mapRef = useRef<HTMLDivElement | null>(null)
+  const mapInstanceRef = useRef<any>(null)
+  const markerLayerRef = useRef<any>(null)
+
   const filteredReports = useMemo(() => {
     return filter === "All" ? reports : reports.filter((r) => r.trashLevel === filter)
   }, [reports, filter])
 
-  // Calculate map bounds and scale
-  const { minLat, maxLat, minLng, maxLng, points } = useMemo(() => {
-    if (filteredReports.length === 0) {
-      return {
-        minLat: 28.5,
-        maxLat: 28.7,
-        minLng: 77.1,
-        maxLng: 77.3,
-        points: [],
+  const userMarkerRef = useRef<any>(null)
+  const accuracyCircleRef = useRef<any>(null)
+  const geoWatchIdRef = useRef<number | null>(null)
+  const hasCenteredRef = useRef<boolean>(false)
+
+  // Ensure Leaflet CSS is loaded (from CDN)
+  useEffect(() => {
+    if (typeof document === "undefined") return
+    const cssHref = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    if (!document.querySelector(`link[href="${cssHref}"]`)) {
+      const link = document.createElement("link")
+      link.rel = "stylesheet"
+      link.href = cssHref
+      document.head.appendChild(link)
+    }
+  }, [])
+
+  // Load Leaflet script and initialize map
+  useEffect(() => {
+    if (typeof window === "undefined") return
+
+    const initMap = () => {
+      const L = (window as any).L
+      if (!L || !mapRef.current) return
+
+      if (!mapInstanceRef.current) {
+        mapInstanceRef.current = L.map(mapRef.current).setView([28.6, 77.2], 12)
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: '&copy; OpenStreetMap contributors',
+        }).addTo(mapInstanceRef.current)
+
+        markerLayerRef.current = L.layerGroup().addTo(mapInstanceRef.current)
       }
     }
 
-    const lats = filteredReports.map((r) => r.latitude)
-    const lngs = filteredReports.map((r) => r.longitude)
-
-    const minLat = Math.min(...lats)
-    const maxLat = Math.max(...lats)
-    const minLng = Math.min(...lngs)
-    const maxLng = Math.max(...lngs)
-
-    // Add padding
-    const latPadding = (maxLat - minLat) * 0.1 || 0.05
-    const lngPadding = (maxLng - minLng) * 0.1 || 0.05
-
-    // Convert lat/lng to SVG coordinates
-    const width = 1000
-    const height = 600
-
-    const points = filteredReports.map((report) => {
-      const x = ((report.longitude - (minLng - lngPadding)) / (maxLng + lngPadding - (minLng - lngPadding))) * width
-      const y =
-        height - ((report.latitude - (minLat - latPadding)) / (maxLat + latPadding - (minLat - latPadding))) * height
-
-      return {
-        ...report,
-        x,
-        y,
+    if (!(window as any).L) {
+      const scriptId = "leaflet-js-cdn"
+      if (!document.getElementById(scriptId)) {
+        const script = document.createElement("script")
+        script.id = scriptId
+        script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        script.async = true
+        script.onload = () => initMap()
+        document.body.appendChild(script)
+      } else {
+        // script exists but L might not be ready yet
+        const attemptInit = () => {
+          if ((window as any).L) initMap()
+          else setTimeout(attemptInit, 50)
+        }
+        attemptInit()
       }
+    } else {
+      initMap()
+    }
+
+    return () => {
+      if (mapInstanceRef.current) {
+        try {
+          mapInstanceRef.current.remove()
+        } catch (_) {}
+        mapInstanceRef.current = null
+      }
+    }
+  }, [])
+
+  // Update markers when filteredReports change
+  useEffect(() => {
+    const L = (window as any).L
+    if (!L || !mapInstanceRef.current || !markerLayerRef.current) return
+
+    markerLayerRef.current.clearLayers()
+
+    if (filteredReports.length === 0) return
+
+    const markers: any[] = []
+    filteredReports.forEach((r) => {
+      const color = getColor(r.trashLevel)
+      const marker = L.circleMarker([r.latitude, r.longitude], {
+        radius: 10,
+        fillColor: color,
+        color: "#fff",
+        weight: 2,
+        fillOpacity: 1,
+      })
+        .bindPopup(`
+          <strong>${r.trashLevel} Level</strong><br/>
+          ${r.latitude.toFixed(4)}, ${r.longitude.toFixed(4)}<br/>
+          ${new Date(r.timestamp).toLocaleString()}
+        `)
+        .addTo(markerLayerRef.current)
+
+      markers.push([r.latitude, r.longitude])
     })
 
-    return {
-      minLat: minLat - latPadding,
-      maxLat: maxLat + latPadding,
-      minLng: minLng - lngPadding,
-      maxLng: maxLng + lngPadding,
-      points,
-    }
+    // Fit bounds to markers
+    try {
+      if (markers.length > 0) {
+        mapInstanceRef.current.fitBounds(markers as any, { padding: [40, 40], maxZoom: 15 })
+      }
+    } catch (_) {}
   }, [filteredReports])
 
-  // Color mapping for trash levels
+  // Watch user geolocation and show live marker
+  useEffect(() => {
+    if (typeof navigator === "undefined") return
+    const L = (window as any).L
+    if (!L || !mapInstanceRef.current) return
+
+    if (!('geolocation' in navigator)) return
+
+    const success = (pos: GeolocationPosition) => {
+      const { latitude, longitude, accuracy } = pos.coords
+
+      try {
+        if (!userMarkerRef.current) {
+          userMarkerRef.current = L.circleMarker([latitude, longitude], {
+            radius: 8,
+            fillColor: '#2563eb',
+            color: '#fff',
+            weight: 2,
+            fillOpacity: 1,
+          }).addTo(mapInstanceRef.current)
+
+          accuracyCircleRef.current = L.circle([latitude, longitude], {
+            radius: Math.max(accuracy || 10, 10),
+            color: '#60a5fa',
+            fillColor: '#60a5fa',
+            fillOpacity: 0.15,
+            weight: 0,
+          }).addTo(mapInstanceRef.current)
+        } else {
+          userMarkerRef.current.setLatLng([latitude, longitude])
+          if (accuracyCircleRef.current) accuracyCircleRef.current.setLatLng([latitude, longitude]).setRadius(Math.max(accuracy || 10, 10))
+        }
+
+        // Center map on first fix
+        if (!hasCenteredRef.current) {
+          try {
+            mapInstanceRef.current.setView([latitude, longitude], 15)
+          } catch (_) {}
+          hasCenteredRef.current = true
+        }
+      } catch (_) {}
+    }
+
+    const error = (err: GeolocationPositionError) => {
+      // Silently ignore geolocation errors for now
+      console.warn('Geolocation error', err)
+    }
+
+    const id = navigator.geolocation.watchPosition(success, error, { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 })
+    geoWatchIdRef.current = id
+
+    return () => {
+      if (geoWatchIdRef.current != null) {
+        try {
+          navigator.geolocation.clearWatch(geoWatchIdRef.current)
+        } catch (_) {}
+        geoWatchIdRef.current = null
+      }
+
+      try {
+        if (userMarkerRef.current) {
+          userMarkerRef.current.remove()
+          userMarkerRef.current = null
+        }
+        if (accuracyCircleRef.current) {
+          accuracyCircleRef.current.remove()
+          accuracyCircleRef.current = null
+        }
+      } catch (_) {}
+    }
+  }, [mapInstanceRef.current])
+
   const getColor = (level: string) => {
     switch (level) {
       case "Low":
-        return "hsl(var(--primary))"
+        return "#0ea5a4"
       case "Medium":
-        return "hsl(var(--accent))"
+        return "#7c3aed"
       case "High":
-        return "hsl(var(--secondary))"
+        return "#fb923c"
       case "Critical":
-        return "hsl(var(--destructive))"
+        return "#ef4444"
       default:
-        return "hsl(var(--muted))"
+        return "#94a3b8"
     }
   }
 
   return (
     <div className="w-full h-full bg-muted/10 rounded-lg overflow-hidden relative">
-      {/* Grid Background */}
-      <svg className="w-full h-full" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid meet">
-        {/* Background */}
-        <rect width="1000" height="600" fill="hsl(var(--background))" />
+      <div ref={mapRef} className="w-full h-[calc(100vh-5rem)]" style={{ minHeight: 300 }} />
 
-        {/* Grid lines */}
-        <defs>
-          <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
-            <path d="M 50 0 L 0 0 0 50" fill="none" stroke="hsl(var(--border))" strokeWidth="0.5" opacity="0.3" />
-          </pattern>
-        </defs>
-        <rect width="1000" height="600" fill="url(#grid)" />
-
-        {/* Map markers */}
-        {points.map((point, index) => {
-          const color = getColor(point.trashLevel)
-          return (
-            <g key={point._id}>
-              {/* Pulse animation ring */}
-              <circle cx={point.x} cy={point.y} r="20" fill={color} opacity="0.2">
-                <animate
-                  attributeName="r"
-                  from="20"
-                  to="35"
-                  dur="2s"
-                  begin={`${index * 0.2}s`}
-                  repeatCount="indefinite"
-                />
-                <animate
-                  attributeName="opacity"
-                  from="0.3"
-                  to="0"
-                  dur="2s"
-                  begin={`${index * 0.2}s`}
-                  repeatCount="indefinite"
-                />
-              </circle>
-
-              {/* Main marker */}
-              <circle
-                cx={point.x}
-                cy={point.y}
-                r="12"
-                fill={color}
-                stroke="white"
-                strokeWidth="3"
-                className="cursor-pointer hover:r-16 transition-all"
-              >
-                <title>
-                  {point.trashLevel} Level{"\n"}
-                  Location: {point.latitude.toFixed(4)}, {point.longitude.toFixed(4)}
-                  {"\n"}
-                  {new Date(point.timestamp).toLocaleString()}
-                </title>
-              </circle>
-
-              {/* Icon */}
-              <text
-                x={point.x}
-                y={point.y}
-                textAnchor="middle"
-                dominantBaseline="central"
-                fontSize="12"
-                fill="white"
-                pointerEvents="none"
-              >
-                🗑️
-              </text>
-            </g>
-          )
-        })}
-      </svg>
-
-      {/* Legend */}
-      {/* <div className="absolute bottom-4 left-4 bg-card/95 backdrop-blur-sm border border-border rounded-lg p-4 shadow-lg">
-        <div className="text-sm font-semibold text-foreground mb-3">Trash Levels</div>
-        <div className="space-y-2">
-          {["Low", "Medium", "High", "Critical"].map((level) => (
-            <div key={level} className="flex items-center gap-2">
-              <div
-                className="w-4 h-4 rounded-full border-2 border-white shadow-sm"
-                style={{ backgroundColor: getColor(level) }}
-              />
-              <span className="text-xs text-muted-foreground">{level}</span>
-            </div>
-          ))}
-        </div>
-      </div> */}
-
-      {/* Coordinates Display */}
       <div className="absolute top-4 right-4 bg-card/95 backdrop-blur-sm border border-border rounded-lg px-3 py-2 shadow-lg">
-        <div className="text-xs text-muted-foreground">
-          Viewing Area: {minLat.toFixed(2)}° - {maxLat.toFixed(2)}° N, {minLng.toFixed(2)}° - {maxLng.toFixed(2)}° E
-        </div>
+        <div className="text-xs text-muted-foreground">Reports: {filteredReports.length}</div>
       </div>
 
-      {/* No Data Message */}
       {filteredReports.length === 0 && (
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="text-center space-y-2">
             <div className="text-4xl">📍</div>
             <p className="text-muted-foreground font-medium">No reports found</p>
