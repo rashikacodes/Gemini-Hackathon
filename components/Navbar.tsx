@@ -20,13 +20,13 @@ export default function Navbar() {
             </div> */}
             <span className="text-2xl">🌿</span>
             <span className="text-xl font-bold text-foreground">
-              SmartWaste <span className="text-primary">AI</span>
+              WasteX <span className="text-primary">AI</span>
             </span>
           </Link>
 
           {/* Desktop Navigation */}
 
-{ user && (
+{ !user && (
 <div className="hidden md:flex items-center gap-8">
   <Link href="/" className="text-foreground hover:text-primary transition-colors duration-300 font-medium">
     Home
@@ -51,7 +51,7 @@ export default function Navbar() {
 
 
 
-  {!user && (
+  {user && (
     <div className="hidden md:flex items-center gap-4">
       <Link
         href="/login"

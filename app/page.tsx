@@ -1,7 +1,16 @@
+"use client"
+
 import Link from "next/link"
 import { ArrowRight, Leaf, Map, Brain, TrendingUp, CheckCircle2, BarChart3 } from "lucide-react"
+import { useUser } from "@/contexts/userContext"
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 
 export default function HomePage() {
+
+  const {user}=useUser();
+  console.log(user)
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -135,7 +144,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16 space-y-4">
             <h2 className="text-4xl md:text-5xl font-bold text-foreground">
-              How <span className="text-primary">SmartWaste AI</span> Works
+              How <span className="text-primary">WasteX AI</span> Works
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Four simple steps to revolutionize your city&apos;s waste management
@@ -179,7 +188,7 @@ export default function HomePage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
               <h2 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
-                Why <span className="text-primary">SmartWaste AI</span> Matters
+                Why <span className="text-primary">WasteX AI</span> Matters
               </h2>
               <p className="text-lg text-muted-foreground leading-relaxed">
                 Cities worldwide struggle with waste management challenges that affect public health, cleanliness, and
@@ -281,7 +290,7 @@ export default function HomePage() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-2">
               <span className="text-2xl">🌿</span>
-              <span className="text-xl font-bold text-primary">SmartWaste AI</span>
+              <span className="text-xl font-bold text-primary">WasteX AI</span>
             </div>
             <p className="text-muted-foreground text-center">
               Building cleaner, smarter cities — one AI detection at a time.

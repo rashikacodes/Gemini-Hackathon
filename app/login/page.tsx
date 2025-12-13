@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Link from "next/link";
+import { useUser } from "@/contexts/userContext";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -12,6 +13,7 @@ const LoginPage = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
 
+  const { setUser} = useUser();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -26,7 +28,10 @@ const LoginPage = () => {
       }).then(res => res.json());
 
       if (response.success) {
-        window.location.href = "/dashboard";
+        console.log("success")
+        console.log(response.user)
+        setUser(response.user);
+        window.location.href = "/";
       } else {
         alert(response.message || "Login failed");
       }

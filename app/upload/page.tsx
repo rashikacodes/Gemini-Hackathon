@@ -1,8 +1,10 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Upload, MapPin, Loader2, CheckCircle2, AlertCircle, ImageIcon } from 'lucide-react'
+import { useRouter } from "next/navigation"
+import { useUser } from "@/contexts/userContext"
 
 export default function UploadPage() {
   const [image, setImage] = useState<File | null>(null)
@@ -13,6 +15,15 @@ export default function UploadPage() {
   const [latLng, setLatLng] = useState<{ lat: number; lng: number } | null>(null)
   const [locationLoading, setLocationLoading] = useState(false)
 
+    const {user} = useUser()
+  const router = useRouter();
+
+  useEffect(() => {
+    console.log(user)
+    if(!user){
+      router.push('/login');
+    }
+  }, [user])
   // 📸 Handle file selection or drop
   const handleImageSelect = (file: File | null) => {
     setImage(file || null)
