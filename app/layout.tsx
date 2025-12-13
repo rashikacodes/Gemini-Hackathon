@@ -1,9 +1,11 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import { Inter } from 'next/font/google'
 
 import "./globals.css"
 import Navbar from "@/components/Navbar"
+import { User } from "lucide-react"
+import { UserProvider } from "@/contexts/userContext"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -39,12 +41,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} antialiased`}>
-        {/* Navbar visible on all pages */}
-        <Navbar />
+        <UserProvider><Navbar />
 
-        {/* Padding so content is not hidden behind navbar */}
-        <main className="pt-20">{children}</main>
-        
+        <main className="pt-20">{children}</main></UserProvider>
+
+
+
       </body>
     </html>
   )

@@ -17,7 +17,7 @@ const LoginPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const res = await fetch("/api/login",{
       method: "POST",
       headers: {
@@ -29,10 +29,10 @@ const LoginPage = () => {
   };
 
   return (
-   <div className="auth-wrapper">
-  <div className="auth-card">
+   <div className="auth-wrapper ">
+  <div className="auth-card w-full mx-auto max-w-md bg-white">
 
-      
+
         <h1 className="text-3xl font-bold text-orange-600 text-center">
           Welcome Back
         </h1>
@@ -40,7 +40,7 @@ const LoginPage = () => {
           Login to continue
         </p>
 
-      
+
         <form onSubmit={handleSubmit} className="space-y-5 mt-6">
           <Input
             label="Username"
